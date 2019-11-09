@@ -1,31 +1,20 @@
 require('dotenv').config();
 
-const { WebClient } = require('@slack/web-api');
-const express = require('express');
-const bodyParser = require('body-parser');
+const { createEventAdapter } = require('@slack/events-api');
 const logger = require('./logger.js');
 
-const app = express();
+const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
 const PORT = process.env.PORT ? process.env.PORT : 3000;
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-app.get('/', (req, res) => {
-    var message = {
-        channel: "#general",
-        text: "Hi! :wave: \n I'm your new bot."
-    };
-    (async () => {
-        try {
-            await new WebClient(process.env.SLACK_AUTH_TOKEN_BOT).chat.postMessage(message);
-        } catch (error) {
-            logger.error(error);
-        }
-    })();
-    res.json();
+// Attach listeners to events by Slack Event "type". See: https://api.slack.com/events/message.im
+slackEvents.on('message', (event) => {
+    logger.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
 });
 
-app.listen(PORT, function () {
-    logger.log('Bot is listening on port ' + PORT);
-});
+(async () => {
+    // Start the built-in server
+    const server = await slackEvents.start(PORT);
+
+    // Log a message when the server is ready
+    logger.log(`Listening for events on ${server.address().port}`);
+})();
