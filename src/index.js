@@ -10,31 +10,49 @@ const PORT = process.env.PORT ? process.env.PORT : 3000;
 
 var coreApiToken = process.env.CORE_API_TOKEN;
 
-// Maintain a token with the core
-cron.schedule("* * * * *", function () {
-    logger.log("Refresh core API Token");
+cron.schedule("*/5 * * * *", function () {
+    logger.log("Healthcheck with core API");
     const options = {
-        url: `${process.env.CORE_API_URL}/auth/refresh`,
+        url: `${process.env.CORE_API_URL}/health`,
         headers: {
             'Authorization': `Bearer ${coreApiToken}`
         }
     };
-    request(options, (err, res, body) => {
-        if (err) { return console.log(err); }
-        coreApiToken = JSON.parse(body).token;
+    request(options, (err, res) => {
+        if (err) { logger.log(err); } 
+        else { logger.log(`GET /health : ${res.statusCode}`) }
     });
 });
 
-
-
-
-// Attach listeners to events by Slack Event "type". See: https://api.slack.com/events/message.im
 slackEvents.on('message', (event) => {
     logger.log(`Received an event : ${JSON.stringify(event)}`);
 });
 
 slackEvents.on('team_join', (event) => {
     logger.log(`Received an event : ${JSON.stringify(event)}`);
+    const newUserJson = event.user;
+    var newUser = {
+        email: newUserJson.profile.email,
+        firstname: newUserJson.profile.real_name,
+        avatarUrl: newUserJson.profile.image_192,
+        slackUser: {
+            email: newUserJson.profile.email,
+            slackUserId: newUserJson.id
+        }
+    }
+    const options = {
+        method: 'POST',
+        url: `${process.env.CORE_API_URL}/slack/${newUserJson.team_id}/member`,
+        headers: {
+            'Authorization': `Bearer ${coreApiToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newUser)
+    };
+    request(options, (err, res) => {
+        if (err) { logger.log(err); }
+        else { logger.log(`POST /slack/${newUserJson.team_id}/member : ${res.statusCode}`) }
+    });
 });
 
 (async () => {
