@@ -24,8 +24,8 @@ jobs:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
           scope: '@thomah'
-      - run: npm config set registry https://npm.pkg.github.com/
       - run: npm ci
+      - run: npm config set registry https://npm.pkg.github.com/
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.github__registry_token}}
