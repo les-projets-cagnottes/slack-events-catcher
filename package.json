@@ -1,18 +1,18 @@
 {
-  "name": "slack-interface",
+  "name": "@les-projets-cagnottes/slack-events-catcher",
   "version": "0.3.0-SNAPSHOT",
   "description": "Slack Interface between our API and the official Slack API",
   "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/les-projets-cagnottes/slack-interface.git"
+    "url": "git+https://github.com/les-projets-cagnottes/slack-events-catcher.git"
   },
   "author": "",
   "license": "OSL-3.0",
   "bugs": {
-    "url": "https://github.com/les-projets-cagnottes/slack-interface/issues"
+    "url": "https://github.com/les-projets-cagnottes/slack-events-catcher/issues"
   },
-  "homepage": "https://github.com/les-projets-cagnottes/slack-interface#readme",
+  "homepage": "https://github.com/les-projets-cagnottes/slack-events-catcher#readme",
   "dependencies": {
     "@slack/events-api": "^2.3.0",
     "@slack/web-api": "^5.4.0",
