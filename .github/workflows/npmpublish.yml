@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: rm .npmrc
       - uses: actions/setup-node@v1
         with:
           node-version: 12
