@@ -14,6 +14,7 @@ jobs:
     steps:
     
     - uses: actions/checkout@v1
+    - uses: actions/heroku@1.0.0
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag registry.heroku.com/lpc-slack/web
@@ -25,7 +26,6 @@ jobs:
       run: echo "${{secrets.HEROKU_PASSWORD}}" | docker login -u "${{secrets.HEROKU_USERNAME}}" --password-stdin registry.heroku.com
 
     - name: Login to Heroku API
-      uses: actions/heroku@1.0.0
       run: container:login
       env:
         HEROKU_API_KEY: ${{secrets.HEROKU_PASSWORD}}
