@@ -13,10 +13,13 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
+      run: docker build . --file Dockerfile --tag registry.heroku.com/lpc-slack/web
     
-    - name: Login to Registry
-      run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
+    - name: Get Heroku Tools
+      run: wget -qO- https://toolbelt.heroku.com/install.sh | sh
+
+    - name: Login to Heroku
+      run: echo "${{secrets.HEROKU_PASSWORD}}" | docker login -u "${{secrets.HEROKU_USERNAME}}" --password-stdin registry.heroku.com
 
     - name: Publish to Registry
-      run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
+      run: docker push registry.heroku.com/lpc-slack/web && heroku container:release web --app lpc-slack
