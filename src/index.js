@@ -10,6 +10,8 @@ const PORT = process.env.PORT ? process.env.PORT : 3000;
 
 var coreApiToken = process.env.CORE_API_TOKEN;
 
+logger.log("CORE_API_URL : " + process.env.CORE_API_URL);
+
 cron.schedule("*/5 * * * *", function () {
     logger.log("Healthcheck with core API");
     const options = {
