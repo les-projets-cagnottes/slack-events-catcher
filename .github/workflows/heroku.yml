@@ -26,7 +26,7 @@ jobs:
       run: echo "${{secrets.HEROKU_PASSWORD}}" | docker login -u "${{secrets.HEROKU_USERNAME}}" --password-stdin registry.heroku.com
 
     - name: Login to Heroku API
-      run: container:login
+      run: heroku container:login
       env:
         HEROKU_API_KEY: ${{secrets.HEROKU_PASSWORD}}
 
