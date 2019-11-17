@@ -21,8 +21,15 @@ jobs:
     - name: Get Heroku Tools
       run: wget -qO- https://toolbelt.heroku.com/install.sh | sh
 
-    - name: Login to Heroku
+    - name: Login to Heroku Registry
       run: echo "${{secrets.HEROKU_PASSWORD}}" | docker login -u "${{secrets.HEROKU_USERNAME}}" --password-stdin registry.heroku.com
 
-    - name: Publish to Registry
+    - name: Login to Heroku API
+      uses: actions/heroku@1.0.0
+      run: container:login
+      env:
+        HEROKU_API_KEY: ${{secrets.HEROKU_PASSWORD}}
+
+    - name: Publish to Registry & release
       run: docker push registry.heroku.com/lpc-slack/web && heroku container:release web --app lpc-slack
+
