@@ -30,6 +30,10 @@ jobs:
       env:
         HEROKU_API_KEY: ${{secrets.HEROKU_PASSWORD}}
 
-    - name: Publish to Registry & release
-      run: docker push registry.heroku.com/lpc-slack/web && heroku container:release web --app lpc-slack
+    - name: Publish to Heroku Registry
+      run: docker push registry.heroku.com/lpc-slack/web
 
+    - name: Release Heroku app
+      run: heroku container:release web --app lpc-slack
+      env:
+        HEROKU_API_KEY: ${{secrets.HEROKU_PASSWORD}}
