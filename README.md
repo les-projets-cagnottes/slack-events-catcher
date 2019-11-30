@@ -1,2 +1,2 @@
-# slack-interface
-Slack Interface between our API and the official Slack API
+# slack-events-catcher
+Endpoint for the event Slack API
