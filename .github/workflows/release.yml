@@ -62,4 +62,4 @@ jobs:
         username: ${{ secrets.PRODUCTION_USER }}
         key : ${{ secrets.PRODUCTION_KEY }}
         port: ${{ secrets.PRODUCTION_PORT }}
-        script: ${{ secrets.PRODUCTION_PATH }}/bin/deploy.sh 
+        script: ${{ secrets.PRODUCTION_PATH }}/bin/deploy.sh
