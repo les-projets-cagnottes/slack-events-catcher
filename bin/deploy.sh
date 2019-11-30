@@ -1,7 +1,9 @@
 #!/bin/bash
 
-cd $1
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+cd $SCRIPTPATH
 echo "$(date -u) Automatic Deploy"  >> ./console.log
 ./slack-events-catcher.sh stop
-sleep 1
+cd ..
+npm i
 ./slack-events-catcher.sh start
