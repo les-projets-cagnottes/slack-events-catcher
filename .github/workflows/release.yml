@@ -46,14 +46,14 @@ jobs:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 12
     - name: npm install, build
-      run: npm ci
-    - uses: horochx/deploy-via-scp@v1.0.1
+      run: npm ci    
+    - name: Copy content recursively to remote
+      uses: garygrossgarten/github-action-scp@release
       with:
         local: .
         remote: ${{ secrets.PRODUCTION_PATH }}
         host: ${{ secrets.PRODUCTION_HOST }}
-        port: ${{ secrets.PRODUCTION_PORT }}
-        user: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.PRODUCTION_KEY }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        privateKey : ${{ secrets.PRODUCTION_KEY }}
