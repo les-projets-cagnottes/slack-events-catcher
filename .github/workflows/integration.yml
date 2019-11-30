@@ -19,6 +19,12 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag registry.heroku.com/lpc-slack/web
     
+    - name: Login to Registry
+      run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
+
+    - name: Publish to Registry
+      run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
+      
     - name: Get Heroku Tools
       run: wget -qO- https://toolbelt.heroku.com/install.sh | sh
 

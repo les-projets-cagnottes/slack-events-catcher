@@ -30,9 +30,3 @@ jobs:
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-
-    - name: Login to Registry
-      run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
-
-    - name: Publish to Registry
-      run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
