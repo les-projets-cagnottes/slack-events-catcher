@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export CORE_API_TOKEN=
+export CORE_API_URL=
+export SLACK_SIGNING_SECRET=
