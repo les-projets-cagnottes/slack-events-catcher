@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source /home/apps/.bashrc
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 cd $SCRIPTPATH/..
 echo "$(date -u) Automatic Deploy"  >> ./console.log
