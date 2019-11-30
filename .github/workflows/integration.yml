@@ -1,8 +1,8 @@
-name: Heroku Publish
+name: Integration Deployment
 
 on:
   push:
-    branches:    
+    branches:
       - master
 
 jobs:

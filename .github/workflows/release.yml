@@ -1,10 +1,11 @@
-name: Node.js Package
+name: Release
 
 on:
   release:
     types: [created]
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -44,3 +45,24 @@ jobs:
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+
+  deploy-prod:
+    needs: publish-npm
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build
+      run: npm ci
+    - uses: horochx/deploy-via-scp@1.0.1
+      with:
+        local: .
+        remote: ${{ secrets.PRODUCTION_PATH }}
+        host: ${{ secrets.PRODUCTION_HOST }}
+        port: ${{ secrets.PRODUCTION_PORT }}
+        user: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_KEY }}
