@@ -62,4 +62,4 @@ jobs:
         username: ${{ secrets.PRODUCTION_USER }}
         key : ${{ secrets.PRODUCTION_KEY }}
         port: ${{ secrets.PRODUCTION_PORT }}
-        script: nohup ${{ secrets.PRODUCTION_PATH }}/bin/deploy.sh &
+        script: (nohup ${{ secrets.PRODUCTION_PATH }}/bin/deploy.sh > console.out 2> console.err < /dev/null &) && exit 0
