@@ -4,7 +4,7 @@ function d_start ()
 {
     echo "slack-events-catcher: starting service"
     BASEDIR=$(dirname "$0")/..
-    . "$NVM_DIR/nvm.sh"
+    . "$HOME/.nvm/nvm.sh"
     cd "$BASEDIR" && . bin/setenv.sh && npm i && node src/index.js &
     sleep 5
 }
