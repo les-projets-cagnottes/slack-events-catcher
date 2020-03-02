@@ -14,7 +14,7 @@ jobs:
     steps:
     
     - uses: actions/checkout@v1
-    - uses: actions/heroku@1.0.0
+    - uses: sjdonado/heroku@master
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
