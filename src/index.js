@@ -12,7 +12,7 @@ var coreApiToken = process.env.CORE_API_TOKEN;
 
 logger.log("CORE_API_URL : " + process.env.CORE_API_URL);
 
-cron.schedule("*/5 * * * *", function () {
+cron.schedule("*/5 * * * *", function() {
     logger.log("Healthcheck with core API");
     const options = {
         url: `${process.env.CORE_API_URL}/health`,
@@ -21,8 +21,7 @@ cron.schedule("*/5 * * * *", function () {
         }
     };
     request(options, (err, res) => {
-        if (err) { logger.log(err); } 
-        else { logger.log(`GET /health : ${res.statusCode}`) }
+        if (err) { logger.log(err); } else { logger.log(`GET /health : ${res.statusCode}`) }
     });
 });
 
@@ -52,12 +51,15 @@ slackEvents.on('team_join', (event) => {
         body: JSON.stringify(newUser)
     };
     request(options, (err, res) => {
-        if (err) { logger.log(err); }
-        else { logger.log(`POST /slack/${newUserJson.team_id}/member : ${res.statusCode}`) }
+        if (err) { logger.log(err); } else { logger.log(`POST /slack/${newUserJson.team_id}/member : ${res.statusCode}`) }
     });
 });
 
-(async () => {
+slackEvents.on('user_change', (event) => {
+    logger.log(`Received an event : ${JSON.stringify(event)}`);
+});
+
+(async() => {
     // Start the built-in server
     const server = await slackEvents.start(PORT);
 
