@@ -57,6 +57,29 @@ slackEvents.on('team_join', (event) => {
 
 slackEvents.on('user_change', (event) => {
     logger.log(`Received an event : ${JSON.stringify(event)}`);
+    const newUserJson = event.user;
+    var newUser = {
+        email: newUserJson.profile.email,
+        firstname: newUserJson.profile.real_name,
+        avatarUrl: newUserJson.profile.image_192,
+        enabled: !newUserJson.disabled,
+        slackUser: {
+            email: newUserJson.profile.email,
+            slackUserId: newUserJson.id
+        }
+    }
+    const options = {
+        method: 'PUT',
+        url: `${process.env.CORE_API_URL}/slack/${newUserJson.team_id}/member`,
+        headers: {
+            'Authorization': `Bearer ${coreApiToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newUser)
+    };
+    request(options, (err, res) => {
+        if (err) { logger.log(err); } else { logger.log(`PUT /slack/${newUserJson.team_id}/member : ${res.statusCode}`) }
+    });
 });
 
 (async() => {
