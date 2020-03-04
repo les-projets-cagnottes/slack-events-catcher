@@ -36,10 +36,10 @@ slackEvents.on('team_join', (event) => {
         email: newUserJson.profile.email,
         firstname: newUserJson.profile.real_name,
         avatarUrl: newUserJson.profile.image_192,
-        slackUser: {
+        slackUsers: [{
             email: newUserJson.profile.email,
-            slackUserId: newUserJson.id
-        }
+            slackId: newUserJson.id
+        }]
     }
     const options = {
         method: 'POST',
@@ -63,10 +63,10 @@ slackEvents.on('user_change', (event) => {
         firstname: newUserJson.profile.real_name,
         avatarUrl: newUserJson.profile.image_192,
         enabled: !newUserJson.disabled,
-        slackUser: {
+        slackUsers: [{
             email: newUserJson.profile.email,
-            slackUserId: newUserJson.id
-        }
+            slackId: newUserJson.id
+        }]
     }
     const options = {
         method: 'PUT',
