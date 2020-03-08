@@ -14,7 +14,7 @@ jobs:
     steps:
     
     - uses: actions/checkout@v1
-    - uses: sjdonado/heroku@master
+    - uses: sjdonado/heroku@0f16401029a67519b6547af7247983640996393a
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
@@ -26,7 +26,7 @@ jobs:
       run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
       
     - name: Build the Docker image
-      run: docker tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest registry.heroku.com/lpc-slack/web
+      run: docker tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest registry.heroku.com/les-projets-cagnottes-slack/web
     
     - name: Get Heroku Tools
       run: wget -qO- https://toolbelt.heroku.com/install.sh | sh
@@ -40,9 +40,9 @@ jobs:
         HEROKU_API_KEY: ${{secrets.HEROKU_PASSWORD}}
 
     - name: Publish to Heroku Registry
-      run: docker push registry.heroku.com/lpc-slack/web
+      run: docker push registry.heroku.com/les-projets-cagnottes-slack/web
 
     - name: Release Heroku app
-      run: heroku container:release web --app lpc-slack
+      run: heroku container:release web --app les-projets-cagnottes-slack
       env:
         HEROKU_API_KEY: ${{secrets.HEROKU_PASSWORD}}
