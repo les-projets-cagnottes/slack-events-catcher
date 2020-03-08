@@ -2,7 +2,7 @@
 
 TAG_NAME=$1
 DEPLOY_LOCATION="$( cd "$(dirname "$0")" ; pwd -P )"/..
-FINAL_LOCATION=/opt/les-projets-cagnottes/core
+FINAL_LOCATION=/opt/les-projets-cagnottes/core/current
 
 echo "$(date -u) Automatic Deploy"  >> ./console.log
 
