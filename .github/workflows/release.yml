@@ -36,21 +36,43 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
+  publish-docker:
+    needs: publish-gpr
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@v1
 
-  deploy-prod:
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
+
+    - name: Login to Registry
+      run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
+
+    - name: Publish to Registry
+      run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
+
+  deploy-production:
+    needs: publish-gpr
     runs-on: ubuntu-latest
     steps:
 
     - uses: actions/checkout@v1
 
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
     - name: Copy content recursively to production
-      uses: garygrossgarten/github-action-scp@v0.5.3
+      uses: appleboy/scp-action@v0.0.7
       with:
-        local: .
-        remote: ${{ secrets.PRODUCTION_PATH }}
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
-        privateKey : ${{ secrets.PRODUCTION_KEY }}
+        key : ${{ secrets.PRODUCTION_KEY }}
+        port: ${{ secrets.PRODUCTION_PORT }}
+        source: "."
+        target: /opt/les-projets-cagnottes/slack-events-catcher/deployment
+        rm: true
         
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@v0.0.6
@@ -59,4 +81,4 @@ jobs:
         username: ${{ secrets.PRODUCTION_USER }}
         key : ${{ secrets.PRODUCTION_KEY }}
         port: ${{ secrets.PRODUCTION_PORT }}
-        script: (nohup ${{ secrets.PRODUCTION_PATH }}/bin/deploy.sh > console.out 2> console.err < /dev/null &) && exit 0
+        script: (sudo chmod 755 /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/deploy.sh) && (nohup /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/deploy.sh ${{ steps.get_version.outputs.VERSION }} &>  /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/console.log < /dev/null &) && exit 0
