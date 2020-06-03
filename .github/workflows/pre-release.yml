@@ -50,6 +50,6 @@ jobs:
     - run: git add package.json
     - run: git add package-lock.json
     - run: git commit -m "Release '${{ steps.get_released_version.outputs.VERSION }}'"
-    - run: git push origin
+    - run: git push origin HEAD:${{ github.head_ref }}
     - run: git tag ${{ steps.get_released_version.outputs.VERSION }}
-    - run: git push --tags
+    - run: git push origin HEAD:${{ github.head_ref }} --tags
