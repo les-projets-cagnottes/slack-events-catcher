@@ -41,6 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Config Git
+        run: git config user.email "${{ secrets.GIT_CONFIG_EMAIL }}" && git config user.name "${{ secrets.GIT_CONFIG_NAME }}"
+      - run: git tag ${{ steps.get_released_version.outputs.VERSION }}
+      - run: git push origin HEAD:${{ github.head_ref }} --tags
       - name: Create Release
         uses: actions/create-release@v1
         env:
