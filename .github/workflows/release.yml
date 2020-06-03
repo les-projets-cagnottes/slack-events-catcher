@@ -1,66 +1,79 @@
 name: Release
 
 on:
-  release:
-    types: [created]
-
+  push:
+    branches:
+      - master
+      
 jobs:
 
-#   publish-gpr:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v1
-#       - uses: actions/setup-node@v1
-#         with:
-#           node-version: 12
-#           registry-url: https://npm.pkg.github.com/
-#           scope: '@les-projets-cagnottes'
-#       - run: npm ci
-#       - run: npm config set registry https://npm.pkg.github.com/
-#       - run: echo '//npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}}' > .npmrc
-#       - run: npm publish
-#         env:
-#           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-#   publish-npm:
-#     needs: publish-gpr
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v1
-#       - uses: actions/setup-node@v1
-#         with:
-#           node-version: 12
-#           registry-url: https://registry.npmjs.org/
-#       - run: npm ci
-#       - run: npm publish
-#         env:
-#           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-
-  publish-docker:
+  verify-version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ needs.verify-version.outputs.version }}
     steps:
-    
-    - uses: actions/checkout@v1
-
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
-
-    - name: Login to Registry
-      run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
-
-    - name: Publish to Registry
-      run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
-
-  deploy-production:
-    runs-on: ubuntu-latest
-    steps:
-
-    - uses: actions/checkout@v1
-
+    - uses: actions/checkout@v2
     - name: Get the version
       id: get_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      run: "echo ::set-output name=VERSION::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
+    - name: Test snapshot
+      run: if [[ "${{ needs.verify-version.outputs.version }}" == *"-SNAPSHOT" ]]; then exit 1; else exit 0; fi
+    - name: Test release existence
+      run: curl -f https://github.com/les-projets-cagnottes/slack-events-catcher/releases/tag/${{ needs.verify-version.outputs.version }}
 
+  build:
+    needs: verify-version
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run build --if-present
+
+  release:
+    needs: [verify-version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.verify-version.outputs.version }}
+          release_name: ${{ needs.verify-version.outputs.version }}
+          body: |
+            Release ${{ needs.verify-version.outputs.version }}
+          draft: false
+          prerelease: false
+
+  publish-docker:
+    needs: [verify-version, build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
+    - name: Tag Docker image
+      run: docker tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:${{ needs.verify-version.outputs.version }}
+    - name: Login to Registry
+      run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
+    - name: Publish latest to Registry
+      run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:latest
+    - name: Publish version to Registry
+      run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:${{ needs.verify-version.outputs.version }}
+
+  deploy-production:
+    needs: [verify-version, build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Copy content recursively to production
       uses: appleboy/scp-action@v0.0.7
       with:
@@ -71,7 +84,6 @@ jobs:
         source: "."
         target: /opt/les-projets-cagnottes/slack-events-catcher/deployment
         rm: true
-        
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@v0.0.6
       with:
@@ -79,4 +91,4 @@ jobs:
         username: ${{ secrets.PRODUCTION_USER }}
         key : ${{ secrets.PRODUCTION_KEY }}
         port: ${{ secrets.PRODUCTION_PORT }}
-        script: (sudo chmod 755 /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/deploy.sh) && (nohup /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/deploy.sh ${{ steps.get_version.outputs.VERSION }} &>  /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/console.log < /dev/null &) && exit 0
+        script: (sudo chmod 755 /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/deploy.sh) && (nohup /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/deploy.sh ${{ needs.verify-version.outputs.version }} &>  /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/console.log < /dev/null &) && exit 0
