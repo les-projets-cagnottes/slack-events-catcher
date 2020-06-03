@@ -17,6 +17,8 @@ jobs:
       version: ${{ steps.get_version.outputs.VERSION }}
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: '${{ github.head_ref }}'
     - name: Get the version
       id: get_version
       run: "echo ::set-output name=VERSION::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
@@ -28,10 +30,10 @@ jobs:
     needs: verify-version
     runs-on: ubuntu-latest
     if: needs.verify-version.outputs.is_snapshot == 1
-    outputs:
-      version: ${{ steps.get_released_version.outputs.VERSION }}
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: '${{ github.head_ref }}'
     - name: Get previous version
       id: get_previous_version
       run: "echo ::set-output name=VERSION::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
