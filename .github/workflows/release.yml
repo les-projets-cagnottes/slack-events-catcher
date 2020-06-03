@@ -22,7 +22,7 @@ jobs:
       id: get_release
       run: echo ::set-output name=RELEASE_HTTP_CODE::$(curl -s -o out.html -w '%{http_code}'  https://github.com/les-projets-cagnottes/slack-events-catcher/releases/tag/${{ steps.get_version.outputs.VERSION }};)
     - name: Test release existence
-      run: if [[ "${{ steps.get_release.outputs.RELEASE_HTTP_CODE }}" -eq 200 ]]; then exit 1; else exit 0; fi
+      run: if [[ "${{ steps.get_release.outputs.RELEASE_HTTP_CODE }}" -eq "200" ]]; then exit 1; else exit 0; fi
 
   build:
     needs: verify-version
@@ -47,7 +47,7 @@ jobs:
       - name: Config Git
         run: git config user.email "${{ secrets.GIT_CONFIG_EMAIL }}" && git config user.name "${{ secrets.GIT_CONFIG_NAME }}"
       - run: git tag ${{ steps.get_released_version.outputs.VERSION }}
-      - run: git push origin HEAD:${{ github.head_ref }} --tags
+      - run: git push origin ${{ steps.get_released_version.outputs.VERSION }}
       - name: Create Release
         uses: actions/create-release@v1
         env:
