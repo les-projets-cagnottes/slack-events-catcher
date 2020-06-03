@@ -8,12 +8,24 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
     steps:
     - uses: actions/checkout@v2
-    - uses: sjdonado/heroku@0f16401029a67519b6547af7247983640996393a
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run build --if-present
+
+  publish-docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Get the version
       id: get_version
       run: "echo ::set-output name=VERSION::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
@@ -23,6 +35,20 @@ jobs:
       run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
     - name: Publish to Registry
       run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:${{ steps.get_version.outputs.VERSION }}
+
+  deploy-heroku:
+    needs: publish-docker
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: sjdonado/heroku@0f16401029a67519b6547af7247983640996393a
+    - name: Get the version
+      id: get_version
+      run: "echo ::set-output name=VERSION::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
+    - name: Login to Registry
+      run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
+    - name: Pull Docker Image
+      run: docker pull docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:${{ steps.get_version.outputs.VERSION }}
     - name: Build the Docker image
       run: docker tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:${{ steps.get_version.outputs.VERSION }} registry.heroku.com/les-projets-cagnottes-slack/web
     - name: Get Heroku Tools
