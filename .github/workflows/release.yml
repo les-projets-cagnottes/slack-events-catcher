@@ -46,8 +46,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Config Git
         run: git config user.email "${{ secrets.GIT_CONFIG_EMAIL }}" && git config user.name "${{ secrets.GIT_CONFIG_NAME }}"
-      - run: git tag ${{ steps.get_released_version.outputs.VERSION }}
-      - run: git push origin ${{ steps.get_released_version.outputs.VERSION }}
+      - run: git tag ${{ needs.verify-version.outputs.version }}
+      - run: git push origin ${{ needs.verify-version.outputs.version }}
       - name: Create Release
         uses: actions/create-release@v1
         env:
