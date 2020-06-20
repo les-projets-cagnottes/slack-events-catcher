@@ -5,17 +5,17 @@ const cron = require("node-cron");
 const request = require('request');
 const logger = require('./logger.js');
 
-const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
+const slackEvents = createEventAdapter(process.env.LPC_SLACK_SIGNING_SECRET);
 const PORT = process.env.PORT ? process.env.PORT : 3000;
 
-var coreApiToken = process.env.CORE_API_TOKEN;
+var coreApiToken = process.env.LPC_CORE_API_TOKEN;
 
-logger.log("CORE_API_URL : " + process.env.CORE_API_URL);
+logger.log("LPC_CORE_API_URL : " + process.env.LPC_CORE_API_URL);
 
 cron.schedule("*/5 * * * *", function() {
     logger.log("Healthcheck with core API");
     const options = {
-        url: `${process.env.CORE_API_URL}/health`,
+        url: `${process.env.LPC_CORE_API_URL}/health`,
         headers: {
             'Authorization': `Bearer ${coreApiToken}`
         }
@@ -43,7 +43,7 @@ slackEvents.on('team_join', (event) => {
     }
     const options = {
         method: 'POST',
-        url: `${process.env.CORE_API_URL}/slack/${newUserJson.team_id}/member`,
+        url: `${process.env.LPC_CORE_API_URL}/slack/${newUserJson.team_id}/member`,
         headers: {
             'Authorization': `Bearer ${coreApiToken}`,
             'Content-Type': 'application/json'
@@ -70,7 +70,7 @@ slackEvents.on('user_change', (event) => {
     }
     const options = {
         method: 'PUT',
-        url: `${process.env.CORE_API_URL}/slack/${newUserJson.team_id}/member`,
+        url: `${process.env.LPC_CORE_API_URL}/slack/${newUserJson.team_id}/member`,
         headers: {
             'Authorization': `Bearer ${coreApiToken}`,
             'Content-Type': 'application/json'
