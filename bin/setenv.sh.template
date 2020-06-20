@@ -1,5 +1,5 @@
 #!/bin/sh
 
-export CORE_API_TOKEN=
-export CORE_API_URL=
-export SLACK_SIGNING_SECRET=
+export LPC_CORE_API_TOKEN=
+export LPC_CORE_API_URL=
+export LPC_SLACK_SIGNING_SECRET=
