@@ -30,11 +30,19 @@ jobs:
       id: get_version
       run: "echo ::set-output name=VERSION::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:${{ steps.get_version.outputs.VERSION }}
+      run: docker build . --file Dockerfile --tag slack-events-catcher:latest
+    - name: Tag the image for GitHub Registry
+      run: docker tag slack-events-catcher:latest docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:${{ steps.get_version.outputs.VERSION }}
     - name: Login to Registry
       run: docker login docker.pkg.github.com -u thomah -p ${{secrets.GITHUB_TOKEN}}
     - name: Publish to Registry
       run: docker push docker.pkg.github.com/les-projets-cagnottes/slack-events-catcher/slack-events-catcher:${{ steps.get_version.outputs.VERSION }}
+    - name: Tag the image for Docker Hub
+      run: docker tag slack-events-catcher:latest lesprojetscagnottes/slack-events-catcher:${{ steps.get_version.outputs.VERSION }}
+    - name: Login to Docker Hub
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Publish to Docker Hub
+      run: docker push lesprojetscagnottes/slack-events-catcher:${{ steps.get_version.outputs.VERSION }}
 
   deploy-heroku:
     needs: publish-docker
