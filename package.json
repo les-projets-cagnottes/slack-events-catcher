@@ -1,6 +1,6 @@
 {
     "name": "@les-projets-cagnottes/slack-events-catcher",
-    "version": "0.5.2",
+    "version": "0.5.3-SNAPSHOT",
     "description": "Slack Interface between our API and the official Slack API",
     "main": "src/index.js",
     "repository": {
