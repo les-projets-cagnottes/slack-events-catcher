@@ -14,7 +14,6 @@ var coreApiToken = process.env.LPC_CORE_API_TOKEN;
 if(coreApiToken == null) {
     try {
         coreApiToken = fs.readFileSync('files/config/slack-events-catcher-token', 'utf8');
-        console.log(data)
     } catch (err) {
         console.error(err)
         exit(0)
