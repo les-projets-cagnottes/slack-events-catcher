@@ -20,7 +20,9 @@ if(coreApiToken == null) {
     }
 }
 
-logger.log("LPC_CORE_API_URL : " + process.env.LPC_CORE_API_URL);
+logger.log('Slack Signing Secret : ' + process.env.LPC_SLACK_SIGNING_SECRET);
+logger.log('LPC Core API URL : ' + process.env.LPC_CORE_API_URL);
+logger.log('LPC Core API Token : ' + coreApiToken);
 
 cron.schedule("*/5 * * * *", function () {
     logger.log("Healthcheck with core API");
