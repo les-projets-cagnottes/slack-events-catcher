@@ -87,27 +87,3 @@ jobs:
       run: docker push lesprojetscagnottes/slack-events-catcher:${{ needs.verify-version.outputs.version }}
     - name: Publish latest to Docker Hub
       run: docker push lesprojetscagnottes/slack-events-catcher:latest
-
-  deploy-production:
-    needs: [verify-version, build]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Copy content recursively to production
-      uses: appleboy/scp-action@v0.0.7
-      with:
-        host: ${{ secrets.PRODUCTION_HOST }}
-        username: ${{ secrets.PRODUCTION_USER }}
-        key : ${{ secrets.PRODUCTION_KEY }}
-        port: ${{ secrets.PRODUCTION_PORT }}
-        source: "."
-        target: /opt/les-projets-cagnottes/slack-events-catcher/deployment
-        rm: true
-    - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@v0.0.6
-      with:
-        host: ${{ secrets.PRODUCTION_HOST }}
-        username: ${{ secrets.PRODUCTION_USER }}
-        key : ${{ secrets.PRODUCTION_KEY }}
-        port: ${{ secrets.PRODUCTION_PORT }}
-        script: (sudo chmod 755 /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/deploy.sh) && (nohup /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/deploy.sh ${{ needs.verify-version.outputs.version }} &>  /opt/les-projets-cagnottes/slack-events-catcher/deployment/bin/console.log < /dev/null &) && exit 0

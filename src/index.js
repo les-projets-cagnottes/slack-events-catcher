@@ -9,11 +9,12 @@ const logger = require('./logger.js');
 
 const slackEvents = createEventAdapter(process.env.LPC_SLACK_SIGNING_SECRET);
 const PORT = process.env.PORT ? process.env.PORT : 3000;
+const TOKEN_FILE = process.env.LPC_SEC_TOKEN_FILE ? process.env.LPC_SEC_TOKEN_FILE : 'files/slack-events-catcher/token';
 
 var coreApiToken = process.env.LPC_CORE_API_TOKEN;
 if(coreApiToken == null) {
     try {
-        coreApiToken = fs.readFileSync('files/config/slack-events-catcher-token', 'utf8');
+        coreApiToken = fs.readFileSync(TOKEN_FILE, 'utf8');
     } catch (err) {
         console.error(err)
         exit(0)
