@@ -1,40 +1,29 @@
 require('dotenv').config();
 
 const { createEventAdapter } = require('@slack/events-api');
-const fs = require('fs')
 const cron = require('node-cron');
-const { exit } = require('process');
 const request = require('request');
 const logger = require('./logger.js');
+const controller = require("./controller.js");
 
 const slackEvents = createEventAdapter(process.env.LPC_SLACK_SIGNING_SECRET);
 const PORT = process.env.PORT ? process.env.PORT : 3000;
-const TOKEN_FILE = process.env.LPC_SEC_TOKEN_FILE ? process.env.LPC_SEC_TOKEN_FILE : 'files/slack-events-catcher/token';
+var coreApiToken = ''
 
-var coreApiToken = process.env.LPC_CORE_API_TOKEN;
-if(coreApiToken == null) {
-    try {
-        coreApiToken = fs.readFileSync(TOKEN_FILE, 'utf8');
-    } catch (err) {
-        console.error(err)
-        exit(0)
-    }
-}
+controller.waitForToken(token => {
+    coreApiToken = token
+});
 
 logger.log('Slack Signing Secret : ' + process.env.LPC_SLACK_SIGNING_SECRET);
 logger.log('LPC Core API URL : ' + process.env.LPC_CORE_API_URL);
-logger.log('LPC Core API Token : ' + coreApiToken);
 
 cron.schedule("*/5 * * * *", function () {
     logger.log("Healthcheck with core API");
     const options = {
-        url: `${process.env.LPC_CORE_API_URL}/health`,
-        headers: {
-            'Authorization': `Bearer ${coreApiToken}`
-        }
+        url: `${process.env.LPC_CORE_API_URL}/actuator/health`
     };
     request(options, (err, res) => {
-        if (err) { logger.log(err); } else { logger.log(`GET /health : ${res.statusCode}`) }
+        if (err) { logger.log(err); } else { logger.log(`Core API status : ${res.statusCode}`) }
     });
 });
 
@@ -53,6 +42,10 @@ slackEvents.on('team_join', (event) => {
             email: newUserJson.profile.email,
             slackId: newUserJson.id
         }]
+    }
+    if(coreApiToken === '') {
+        logger.log('ERROR : Cannot create User with Slack ID ' + newUserJson.id + ' in Core API. No token provided');
+        error();
     }
     const options = {
         method: 'POST',
@@ -81,6 +74,10 @@ slackEvents.on('user_change', (event) => {
             slackId: newUserJson.id
         }]
     }
+    if(coreApiToken === '') {
+        logger.log('ERROR : Cannot update User with Slack ID ' + newUserJson.id + ' in Core API. No token provided')
+        error();
+    }
     const options = {
         method: 'PUT',
         url: `${process.env.LPC_CORE_API_URL}/slack/${newUserJson.team_id}/member`,
@@ -100,5 +97,5 @@ slackEvents.on('user_change', (event) => {
     const server = await slackEvents.start(PORT);
 
     // Log a message when the server is ready
-    logger.log(`Listening for events on ${server.address().port}`);
+    logger.log(`Slack Bot listening on ${server.address().port}`);
 })();
