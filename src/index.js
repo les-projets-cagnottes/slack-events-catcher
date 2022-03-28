@@ -7,7 +7,7 @@ const logger = require('./logger.js');
 const controller = require("./controller.js");
 
 const slackEvents = createEventAdapter(process.env.LPC_SLACK_SIGNING_SECRET);
-const PORT = process.env.PORT ? process.env.PORT : 3000;
+const PORT = process.env.LPC_SEC_SLACK_PORT ? process.env.LPC_SEC_SLACK_PORT : 3000;
 var coreApiToken = ''
 
 controller.waitForToken(token => {
