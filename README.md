@@ -15,3 +15,13 @@ node src/index.js
 ## Authenticate with core component
 
 Create a file `core-token` containing an API token in the project directory. It will be consumed by the slack-events-catcher to be used in API calls.
+
+## Local Testing
+
+Use ngrok to start a tunnel and keep the window open
+
+```
+ngrok http 3000
+```
+
+On the Slack App, enable events and define the Request URL as followed : `<NGROK URL>/slack/events`
