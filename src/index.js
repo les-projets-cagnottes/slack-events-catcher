@@ -49,7 +49,7 @@ slackEvents.on('team_join', (event) => {
     }
     const options = {
         method: 'POST',
-        url: `${process.env.LPC_CORE_API_URL}/slack/${newUserJson.team_id}/member`,
+        url: `${process.env.LPC_CORE_API_URL}/api/slack/${newUserJson.team_id}/member`,
         headers: {
             'Authorization': `Bearer ${coreApiToken}`,
             'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ slackEvents.on('team_join', (event) => {
         body: JSON.stringify(newUser)
     };
     request(options, (err, res) => {
-        if (err) { logger.log(err); } else { logger.log(`POST /slack/${newUserJson.team_id}/member : ${res.statusCode}`) }
+        if (err) { logger.log(err); } else { logger.log(`Creating Slack User ${newUserJson.id} : ${res.statusCode}`) }
     });
 });
 
@@ -68,7 +68,7 @@ slackEvents.on('user_change', (event) => {
         email: newUserJson.profile.email,
         firstname: newUserJson.profile.real_name,
         avatarUrl: newUserJson.profile.image_192,
-        enabled: !newUserJson.disabled,
+        enabled: !(newUserJson.deleted || newUserJson.is_restricted),
         slackUsers: [{
             email: newUserJson.profile.email,
             slackId: newUserJson.id
@@ -80,7 +80,7 @@ slackEvents.on('user_change', (event) => {
     }
     const options = {
         method: 'PUT',
-        url: `${process.env.LPC_CORE_API_URL}/slack/${newUserJson.team_id}/member`,
+        url: `${process.env.LPC_CORE_API_URL}/api/slack/${newUserJson.team_id}/member`,
         headers: {
             'Authorization': `Bearer ${coreApiToken}`,
             'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ slackEvents.on('user_change', (event) => {
         body: JSON.stringify(newUser)
     };
     request(options, (err, res) => {
-        if (err) { logger.log(err); } else { logger.log(`PUT /slack/${newUserJson.team_id}/member : ${res.statusCode}`) }
+        if (err) { logger.log(err); } else { logger.log(`Updating Slack User ${newUserJson.id} : ${res.statusCode}`) }
     });
 });
 
