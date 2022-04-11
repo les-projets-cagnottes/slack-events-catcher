@@ -19,7 +19,7 @@ const authorizeFn = async ({ teamId, enterpriseId }) => {
             return {
                 userToken: team.access_token,
                 botToken: team.bot_access_token,
-                botId: process.env.LPC_SLACK_BOT_ID,
+                botId: team.bot_id,
                 botUserId: team.bot_user_id
             };
         }

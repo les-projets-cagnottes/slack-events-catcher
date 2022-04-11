@@ -15,10 +15,8 @@
     "homepage": "https://github.com/les-projets-cagnottes/slack-events-catcher#readme",
     "dependencies": {
         "@slack/bolt": "^3.11.0",
-        "@slack/events-api": "^3.0.1",
         "body-parser": "^1.19.2",
         "dotenv": "^16.0.0",
-        "node-cron": "^3.0.0",
         "pg": "^8.7.3",
         "request": "^2.88.2"
     }
