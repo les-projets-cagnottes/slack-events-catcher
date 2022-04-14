@@ -3,7 +3,9 @@ const request = require('request');
 const { App, LogLevel } = require('@slack/bolt');
 const logger = require('./logger.js');
 const Pool = require('pg').Pool;
+const HttpsProxyAgent = require('https-proxy-agent');
 
+const proxy = process.env.HTTP_PROXY ? new HttpsProxyAgent(process.env.HTTP_PROXY) : null;
 const PORT = process.env.LPC_SEC_EVENTS_PORT ? process.env.LPC_SEC_EVENTS_PORT : 3000;
 var coreApiToken = ''
 
@@ -29,6 +31,7 @@ const authorizeFn = async ({ teamId, enterpriseId }) => {
 
 const slackEvents = new App({
     signingSecret: process.env.LPC_SLACK_SIGNING_SECRET,
+    agent: proxy,
     authorize: authorizeFn,
     logLevel: LogLevel.INFO,
     customRoutes: [
