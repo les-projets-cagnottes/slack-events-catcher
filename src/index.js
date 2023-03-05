@@ -95,6 +95,7 @@ slackEvents.event('team_join', async (event) => {
         email: newUserJson.profile.email,
         firstname: newUserJson.profile.real_name,
         avatarUrl: newUserJson.profile.image_192,
+        enabled: true,
         slackUsers: [{
             email: newUserJson.profile.email,
             slackId: newUserJson.id
@@ -136,7 +137,7 @@ slackEvents.event('user_change', (event) => {
         error();
     }
     const options = {
-        method: 'PUT',
+        method: 'POST',
         url: `${process.env.LPC_CORE_API_URL}/api/slack/${newUserJson.team_id}/member`,
         headers: {
             'Authorization': `Bearer ${coreApiToken}`,
