@@ -4,7 +4,7 @@
     "description": "Slack Interface between our API and the official Slack API",
     "main": "src/index.js",
     "dependencies": {
-        "@slack/bolt": "^3.12.2",
+        "@slack/bolt": "^3.13.0",
         "body-parser": "^1.20.1",
         "dotenv": "^16.0.3",
         "https-proxy-agent": "^5.0.1",
