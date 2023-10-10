@@ -1,9 +1,10 @@
 require('dotenv').config();
 const request = require('request');
 const { App, LogLevel } = require('@slack/bolt');
-const logger = require('./logger.js');
 const Pool = require('pg').Pool;
 const HttpsProxyAgent = require('https-proxy-agent');
+const interactive = require('./interactive.js');
+const logger = require('./logger.js');
 
 const proxy = process.env.HTTP_PROXY ? new HttpsProxyAgent(process.env.HTTP_PROXY) : null;
 const PORT = process.env.LPC_SEC_EVENTS_PORT ? process.env.LPC_SEC_EVENTS_PORT : 3000;
@@ -57,11 +58,26 @@ const slackEvents = new App({
                     res.end();
                 });
             }
+        }, {
+            path: '/interactive',
+            method: ['POST'],
+            handler: (req, res) => {
+                var body = '';
+                req.on('data', function (data) {
+                    body += data;
+                });
+                req.on('end', function () {
+                    var payload = decodeURIComponent(body).replace("payload=", "");
+                    interactive.run(coreApiToken, JSON.parse(payload));
+                    res.writeHead(200);
+                    res.end();
+                });
+            }
         }
     ],
 });
 
-slackEvents.message(async ({message, say}) => {
+slackEvents.message(async ({ message, say }) => {
     logger.log(`Received message : ${message.text}`);
     await say(message.text);
 });
@@ -73,7 +89,7 @@ slackEvents.command('/projet-cagnotte', async ({ command, ack, respond }) => {
         logger.log('ERROR : Cannot process command. No core token provided');
         error();
     }
-    if(command.text === 'hello') {
+    if (command.text === 'hello') {
         const options = {
             method: 'POST',
             url: `${process.env.LPC_CORE_API_URL}/api/slack/${command.team_id}/hello`,
