@@ -18,12 +18,8 @@ var vote = function (coreApiToken, slackTeamId, slackUserId, voteType, projectId
         url: `${process.env.LPC_CORE_API_URL}/api/slack/${slackTeamId}/vote`,
         body: JSON.stringify({
             type: voteType,
-            project: {
-                id: projectId
-            },
-            slackUser: {
-                slack_id: slackUserId
-            }
+            projectId: projectId,
+            slackUserId: slackUserId
         }),
         headers: {
             'Authorization': `Bearer ${coreApiToken}`,
