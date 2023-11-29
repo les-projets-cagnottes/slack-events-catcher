@@ -59,7 +59,7 @@ const slackEvents = new App({
                 });
             }
         }, {
-            path: '/interactive',
+            path: '/slack/interactive',
             method: ['POST'],
             handler: (req, res) => {
                 var body = '';
