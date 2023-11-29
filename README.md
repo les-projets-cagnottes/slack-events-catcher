@@ -26,7 +26,7 @@ ngrok http 3000
 
 In the Slack App, navigate to :
 
-- `Interactivity & Shortcuts` : set the Request URL as `<Ngrok URL>/interactive`
+- `Interactivity & Shortcuts` : set the Request URL as `<Ngrok URL>/slack/interactive`
 - `Event Subscriptions` : set the Request URL as `<Ngrok URL>/slack/events`
 - `Slash Commands` : 
   * `/projet-cagnotte` | `<Ngrok URL>/slack/events` | `Hello, world !` | `[hello]`
