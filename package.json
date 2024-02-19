@@ -7,7 +7,7 @@
         "@slack/bolt": "^3.15.0",
         "body-parser": "^1.20.2",
         "dotenv": "^16.3.1",
-        "https-proxy-agent": "^7.0.2",
+        "https-proxy-agent": "^7.0.4",
         "pg": "^8.11.3",
         "request": "^2.88.2"
     }
